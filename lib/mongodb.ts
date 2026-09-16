@@ -1,4 +1,3 @@
-// lib/mongodb.ts
 import { MongoClient, MongoClientOptions } from "mongodb";
 
 const uri = process.env.MONGODB_URI;
@@ -17,8 +16,6 @@ declare global {
 }
 
 if (process.env.NODE_ENV === "development") {
-  // Reuse the connection across hot reloads in dev so we don't open a new
-  // connection on every file save.
   if (!global._mongoClientPromise) {
     client = new MongoClient(uri, options);
     global._mongoClientPromise = client.connect();
