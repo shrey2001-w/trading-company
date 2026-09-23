@@ -54,3 +54,55 @@ export async function getOrdersByCustomerEmail(email: string) {
     .sort({ createdAt: -1 })
     .toArray();
 }
+
+// ---- Admin additions ----
+
+export async function getAllOrders(
+  opts: { status?: OrderStatus; limit?: number } = {}
+) {
+  const collection = await getOrdersCollection();
+  const filter = opts.status ? { status: opts.status } : {};
+  return collection
+    .find(filter)
+    .sort({ createdAt: -1 })
+    .limit(opts.limit ?? 100)
+    .toArray();
+}
+
+export async function updateOrderStatusByOrderId(
+  orderId: string,
+  status: OrderStatus
+) {
+  const collection = await getOrdersCollection();
+  const result = await collection.findOneAndUpdate(
+    { orderId },
+    { $set: { status, updatedAt: new Date() } },
+    { returnDocument: "after" }
+  );
+  return result;
+}
+
+export async function getOrderStats() {
+  const collection = await getOrdersCollection();
+
+  const [totalOrders, statusAgg] = await Promise.all([
+    collection.countDocuments({}),
+    collection
+      .aggregate<{ _id: OrderStatus; count: number }>([
+        { $group: { _id: "$status", count: { $sum: 1 } } },
+      ])
+      .toArray(),
+  ]);
+
+  const byStatus: Record<string, number> = {
+    pending: 0,
+    paid: 0,
+    confirmed: 0,
+    cancelled: 0,
+  };
+  for (const s of statusAgg) {
+    byStatus[s._id] = s.count;
+  }
+
+  return { totalOrders, byStatus };
+}

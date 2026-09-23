@@ -6,7 +6,7 @@ const COOKIE_NAME = "session_token";
 
 export type SessionPayload = {
   id: string;
-  role: "painter" | "buyer";
+  role: "painter" | "buyer" | "admin";
   name: string;
 };
 

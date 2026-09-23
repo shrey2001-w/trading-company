@@ -13,7 +13,7 @@ const NAV_LINKS = [
   { label: "Contact Us", href: "/contact" },
 ];
 
-type SessionUser = { id: string; role: "painter" | "buyer"; name: string };
+type SessionUser = { id: string; role: "painter" | "buyer" | "admin"; name: string };
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -94,7 +94,15 @@ export default function Header() {
                     Hi, {user.name.split(" ")[0]}
                   </Link>
                 )}
-                {user.role !== "buyer" && (
+                {user.role === "admin" && (
+                  <Link
+                    href="/admin"
+                    className="rounded-md px-4 py-2 text-[15px] font-medium text-[#1C1B1F] transition-colors hover:bg-stone-200/60"
+                  >
+                    Admin Dashboard
+                  </Link>
+                )}
+                {user.role === "painter" && (
                   <span className="text-[15px] font-medium text-[#1C1B1F]">
                     Hi, {user.name.split(" ")[0]}
                   </span>
@@ -147,6 +155,14 @@ export default function Header() {
                         className="block px-4 py-2.5 text-[15px] font-medium text-[#1C1B1F] hover:bg-stone-100"
                       >
                         Sign in as Buyer
+                      </Link>
+                      <div className="my-1 border-t border-stone-200" />
+                      <Link
+                        href="/sign-in/admin"
+                        onClick={() => setIsSignInOpen(false)}
+                        className="block px-4 py-2.5 text-[15px] font-medium text-[#4A4540] hover:bg-stone-100"
+                      >
+                        Admin Login
                       </Link>
                     </div>
                   )}
@@ -251,6 +267,15 @@ export default function Header() {
                     My Profile
                   </Link>
                 )}
+                {user.role === "admin" && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="rounded-md px-3 py-2.5 text-[15px] font-medium text-[#1C1B1F] hover:bg-stone-200/60"
+                  >
+                    Admin Dashboard
+                  </Link>
+                )}
                 <button
                   onClick={handleSignOut}
                   className="rounded-md px-3 py-2.5 text-center text-[15px] font-medium text-[#1C1B1F] hover:bg-stone-200/60"
@@ -276,6 +301,13 @@ export default function Header() {
                   className="rounded-md px-3 py-2.5 text-[15px] font-medium text-[#1C1B1F] hover:bg-stone-200/60"
                 >
                   Sign in as Buyer
+                </Link>
+                <Link
+                  href="/sign-in/admin"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="rounded-md px-3 py-2.5 text-[15px] font-medium text-[#1C1B1F] hover:bg-stone-200/60"
+                >
+                  Admin Login
                 </Link>
 
                 <p className="mt-2 px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-[#8a8378]">
