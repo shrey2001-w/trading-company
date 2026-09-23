@@ -7,19 +7,26 @@ import { useCart } from "./CartContext";
 import CartDrawer from "./CartDrawer";
 import LanguageSwitcher from "./LanguageSwitcher";
 
-const NAV_LINKS = [
-  { label: "About Us", href: "/about" },
-  { label: "Our Services", href: "/services" },
-  { label: "Contact Us", href: "/contact" },
-];
-
 type SessionUser = { id: string; role: "painter" | "buyer" | "admin"; name: string };
+type NavLink = { label: string; href: string };
+type HeaderContent = { brandName: string; logoUrl: string | null; navLinks: NavLink[] };
+
+const DEFAULT_CONTENT: HeaderContent = {
+  brandName: "Hue & Co.",
+  logoUrl: null,
+  navLinks: [
+    { label: "About Us", href: "/about" },
+    { label: "Our Services", href: "/services" },
+    { label: "Contact Us", href: "/contact" },
+  ],
+};
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   const [user, setUser] = useState<SessionUser | null>(null);
+  const [content, setContent] = useState<HeaderContent>(DEFAULT_CONTENT);
   const { totalItems, toggleCart } = useCart();
   const router = useRouter();
   const signInRef = useRef<HTMLDivElement>(null);
@@ -30,6 +37,15 @@ export default function Header() {
       .then((res) => res.json())
       .then((data) => setUser(data.user))
       .catch(() => setUser(null));
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/site-content/header")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.content) setContent(data.content);
+      })
+      .catch(() => setContent(DEFAULT_CONTENT));
   }, []);
 
   useEffect(() => {
@@ -61,14 +77,19 @@ export default function Header() {
           className="flex shrink-0 items-center gap-2.5"
           onClick={() => setIsMenuOpen(false)}
         >
-          <PaintDropMark className="h-8 w-8" />
-          <span className="font-brand text-xl font-semibold tracking-tight text-[#1C1B1F]">
-            Hue&nbsp;&amp;&nbsp;Co.
+          {content.logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={content.logoUrl} alt={content.brandName} className="h-8 w-8 object-contain" />
+          ) : (
+            <PaintDropMark className="h-8 w-8" />
+          )}
+          <span className="whitespace-nowrap font-brand text-xl font-semibold tracking-tight text-[#1C1B1F]">
+            {content.brandName}
           </span>
         </Link>
 
         <nav className="hidden md:flex md:items-center md:gap-9">
-          {NAV_LINKS.map((link) => (
+          {content.navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -244,7 +265,7 @@ export default function Header() {
         }`}
       >
         <nav className="flex flex-col gap-1 px-4 py-4 sm:px-6">
-          {NAV_LINKS.map((link) => (
+          {content.navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}

@@ -1,9 +1,14 @@
 import { getSession } from "@/lib/auth";
 import { getOrderStats } from "@/lib/db/orders";
+import { getBuyerCount, getPainterCount } from "@/lib/db/users";
 
 export default async function AdminDashboardPage() {
   const session = await getSession();
-  const { totalOrders, byStatus } = await getOrderStats();
+  const [{ totalOrders, byStatus }, buyerCount, painterCount] = await Promise.all([
+    getOrderStats(),
+    getBuyerCount(),
+    getPainterCount(),
+  ]);
 
   return (
     <div>
@@ -16,9 +21,8 @@ export default async function AdminDashboardPage() {
         <StatCard label="Paid" value={byStatus.paid ?? 0} />
         <StatCard label="Confirmed" value={byStatus.confirmed ?? 0} />
         <StatCard label="Cancelled" value={byStatus.cancelled ?? 0} />
-        {/* Painters / Buyers counts need the user schema — placeholder for now */}
-        <StatCard label="Registered Painters" value="—" />
-        <StatCard label="Registered Buyers" value="—" />
+        <StatCard label="Registered Painters" value={painterCount} />
+        <StatCard label="Registered Buyers" value={buyerCount} />
       </div>
     </div>
   );
