@@ -18,6 +18,7 @@ export default function PainterSignUpPage() {
   const [photograph, setPhotograph] = useState<string>("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
@@ -54,12 +55,27 @@ export default function PainterSignUpPage() {
         return;
       }
 
-      router.push("/sign-in");
+      setSuccess(true);
+      setTimeout(() => {
+        router.push("/");
+      }, 2000);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
+  }
+
+  if (success) {
+    return (
+      <div className="mx-auto flex max-w-lg flex-col items-center gap-3 px-4 py-24 text-center">
+        <div className="text-3xl">✅</div>
+        <h1 className="text-2xl font-semibold text-[#1C1B1F]">
+          Your account has been created successfully!
+        </h1>
+        <p className="text-sm text-[#4A4540]">Redirecting you to the homepage...</p>
+      </div>
+    );
   }
 
   return (

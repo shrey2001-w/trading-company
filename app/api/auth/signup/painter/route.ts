@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import clientPromise from "@/lib/mongodb";
+import { sendBrevoEmail } from "@/lib/brevo";
+import { painterWelcomeEmailHtml, painterOwnerNotificationEmailHtml } from "@/app/api/contact/email-templates";
 
 export async function POST(req: NextRequest) {
   try {
@@ -43,7 +45,37 @@ export async function POST(req: NextRequest) {
       createdAt: new Date(),
     });
 
-    return NextResponse.json({ success: true }, { status: 201 });
+    // --- Send emails (don't let email failure block the signup response) ---
+    let emailStatus: "sent" | "failed" = "sent";
+    try {
+      await sendBrevoEmail({
+        to: [{ email: process.env.OWNER_EMAIL as string }],
+        subject: `New Painter Signup: ${name}`,
+        htmlContent: painterOwnerNotificationEmailHtml({
+          name,
+          age,
+          phone,
+          email,
+          address,
+          aadharNumber,
+          description,
+          photograph,
+        }),
+      });
+
+      if (email) {
+        await sendBrevoEmail({
+          to: [{ email, name }],
+          subject: "Your painter account has been created",
+          htmlContent: painterWelcomeEmailHtml({ name }),
+        });
+      }
+    } catch (emailErr) {
+      emailStatus = "failed";
+      console.error("Painter signup email error:", emailErr);
+    }
+
+    return NextResponse.json({ success: true, emailStatus }, { status: 201 });
   } catch (err) {
     console.error("Painter signup error:", err);
     return NextResponse.json({ error: "Failed to create account." }, { status: 500 });

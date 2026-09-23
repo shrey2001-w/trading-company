@@ -86,9 +86,19 @@ export default function Header() {
           <div className="hidden md:flex md:items-center md:gap-3">
             {user ? (
               <>
-                <span className="text-[15px] font-medium text-[#1C1B1F]">
-                  Hi, {user.name.split(" ")[0]}
-                </span>
+                {user.role === "buyer" && (
+                  <Link
+                    href="/profile"
+                    className="rounded-md px-4 py-2 text-[15px] font-medium text-[#1C1B1F] transition-colors hover:bg-stone-200/60"
+                  >
+                    Hi, {user.name.split(" ")[0]}
+                  </Link>
+                )}
+                {user.role !== "buyer" && (
+                  <span className="text-[15px] font-medium text-[#1C1B1F]">
+                    Hi, {user.name.split(" ")[0]}
+                  </span>
+                )}
                 <button
                   onClick={handleSignOut}
                   className="rounded-md px-4 py-2 text-[15px] font-medium text-[#1C1B1F] transition-colors hover:bg-stone-200/60"
@@ -231,12 +241,23 @@ export default function Header() {
 
           <div className="mt-3 flex flex-col gap-2 border-t border-stone-200 pt-3">
             {user ? (
-              <button
-                onClick={handleSignOut}
-                className="rounded-md px-3 py-2.5 text-center text-[15px] font-medium text-[#1C1B1F] hover:bg-stone-200/60"
-              >
-                Sign Out ({user.name.split(" ")[0]})
-              </button>
+              <>
+                {user.role === "buyer" && (
+                  <Link
+                    href="/profile"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="rounded-md px-3 py-2.5 text-[15px] font-medium text-[#1C1B1F] hover:bg-stone-200/60"
+                  >
+                    My Profile
+                  </Link>
+                )}
+                <button
+                  onClick={handleSignOut}
+                  className="rounded-md px-3 py-2.5 text-center text-[15px] font-medium text-[#1C1B1F] hover:bg-stone-200/60"
+                >
+                  Sign Out ({user.name.split(" ")[0]})
+                </button>
+              </>
             ) : (
               <>
                 <p className="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-[#8a8378]">

@@ -46,3 +46,11 @@ export async function getOrderById(orderId: string) {
   const collection = await getOrdersCollection();
   return collection.findOne({ orderId });
 }
+
+export async function getOrdersByCustomerEmail(email: string) {
+  const collection = await getOrdersCollection();
+  return collection
+    .find({ "customer.email": email })
+    .sort({ createdAt: -1 })
+    .toArray();
+}
